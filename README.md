@@ -11,3 +11,5 @@ https://github.com/LAH1203/Software_Engineering_Project/blob/main/%EC%86%8C%ED%9
 https://github.com/FlavioRyu/Chess-Game/blob/main/Chess_Report.pdf
 
 figure2 참조해서 저희꺼 응용해보는 것도 좋을 것 같습니다.
+
+https://www.codeproject.com/Articles/1214018/Chess-Console-Game-in-Cplusplus
