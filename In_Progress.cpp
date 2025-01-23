@@ -38,7 +38,22 @@ public:
     
     void Draw_Board()
     {
-        //if(array)
+        for(int i=0; i<BOARD_HEIGHT; i++)
+            {
+                for(int j=0; j<BOARD_WIDTH; j++)
+                    {
+                        if(array[i][j] == nullptr)
+                        {
+                            cout << '.' << " ";
+                        }
+                        /*
+                        else
+                        {
+                            cout << <Dynamic>array.name;
+                        }
+                        */
+                    }
+            }
     }
     void Check_KeyInput();
 };
