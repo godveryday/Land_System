@@ -55,7 +55,34 @@ public:
                     }
             }
     }
-    void Check_KeyInput();
+    void Check_KeyInput()
+    {
+        if(_kbhit())
+        {
+            int key = _getch();
+            
+            switch(key)
+            {
+                case 72: // 상
+                    if(CursorY > 0) CursorY--;
+                    break;
+                case 80: //하
+                    if (CursorY < BOARD_HEIGHT -1) CursorY++;
+                    break;
+                case 75: //좌
+                    if(CursorX > 0) CursorX--;
+                    break;
+                case 77: //우
+                    if(CursorX < BOARD_WIDTH -1) CursorX++;
+                    break;
+                case (A number) :
+                    if(!Is_Selected && array[CursorX][CursorY] != nullptr)
+                    {
+                        // possibleAttacks = ..
+                    }
+            }
+        }
+    }
 };
 
 
