@@ -8,6 +8,7 @@
 #include<string>
 #include<conio.h>
 #include<math.h>
+#include"Draw_Title.h"
 using namespace std;
 
 #define BOARD_HEIGHT 12
@@ -323,6 +324,8 @@ public:
 };
 
 int main() {
+   Draw_Title();
+   Sleep(2500);
    Game game;
    game.Run();
    return 0;
