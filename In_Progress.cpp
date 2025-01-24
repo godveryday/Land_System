@@ -1,3 +1,7 @@
+// 1. Turn 개념 추가하기
+// 2. 지금은 Object의 Position x y 좌표를 활용하지 않는 것 같음 --> 수정해야함
+
+
 #include<iostream>
 #include<windows.h>
 #include<vector>
@@ -201,6 +205,8 @@ public:
                    break;
                case 'a':
                case 'A':
+                    // 여기에 어떤 플레이어의 턴인지 확인해서
+                    // 내 객체인지 아닌지 판단 후 표시해야함
                    if(board[CursorY][CursorX] != nullptr) {
                        if(dynamic_cast<Attacking_Object*>(board[CursorY][CursorX])) {
                            Selected_X = CursorX;
@@ -274,7 +280,29 @@ public:
                CommandCenter* cc = dynamic_cast<CommandCenter*>(board[Selected_Y][Selected_X]);
                if(cc && board[CursorY][CursorX] == nullptr) {
                    int dist = abs(CursorY - Selected_Y) + abs(CursorX - Selected_X);
-                   if(dist <= cc->getSpawnRange()) {
+                   if(dist <= cc->getSpawnRange()) 
+                   {
+                       int choice;
+                       cout << "생성할 유닛을 선택하시오" << endl;
+                       cout << "1. Soldier (1 Turn)" << endl << "2. Redback (2 Turn)" << endl << "3. Tank (2 Turn)" << endl << "4. K9 (3 Turn)" << endl;
+                       cout << "입력 : ";
+                       cin >> choice;
+                       switch (choice)
+                       {
+                           // 생성 할 때 턴 개념 적용해야함
+                        case 1:
+                            board[CursorY][CursorX] = cc->spawn("Soldier", CursorY, CursorX);
+                            break;
+                        case 2:
+                            board[CursorY][CursorX] = cc->spawn("Redback", CursorY, CursorX);
+                            break;
+                        case 3:
+                            board[CursorY][CursorX] = cc->spawn("Tank", CursorY, CursorX);
+                            break;
+                        case 4:
+                            board[CursorY][CursorX] = cc->spawn("K9", CursorY, CursorX);
+                            break;
+                       }
                        board[CursorY][CursorX] = cc->spawn("Tank", CursorY, CursorX);
                    }
                }
