@@ -1,126 +1,604 @@
-// 2025/02/05 16:49 기준 update
-// 이 코드 시나리오상 가상 문제는 attack_position을 for문 밖에서 색 설정하면, 그 위치에 상대방 object가 있을 때 색 적용이 안됌
+#include<cstdlib>
+#include<ctime>
 #include"Game.h"
+#include"Draw_Title.h"
 
-Game::Game() : CursorX(0), CursorY(0), Selected_X(0), Selected_Y(0),
-    isSelected(false), attackMode(false), moveMode(false), spawnMode(false) // attackMode, moveMode, spawnMode를 enum바꿀 생각하기
+Game::Game() : CursorX(0), CursorY(0), Slected_X(0), Selected_Y(0),
+isSelected(false), attackMode(false), moveMode(false), spawnMode(false)
 {
-  // playerTurn = 0 or 1 동전던지기 로직 여기 넣기 
-  cout << "동전던지기를 실행합니다";
+    // Test용으로 임시 주석 ON/OFF
+    Draw_Title();
+    Sleep(2500);
+    PrintRule();
 
-  board.resize(BOARD_HEIGHT, vector<Object*>(BOARD_WIDTH, nullptr));
-  playerA.resize(MAX_OBJECT_CNT, nullptr);
-  playerB.resize(MAX_OBJECT_CNT, nullptr);
+    // 플레이어 턴 동전던지기
+    cout << endl << "동전 던지기를 진행합니다" << endl;
+    playerTurn = CoinToss();
 
-  console = GetStdHandle(STD_OUTPUT_HANDLE);
+    // Test용으로 임시 주석 ON/OFF
+    // playerTurn = RED;
 
-  // 초기 지휘소 생성
-  // playerA[0] = 
-  // playerB[0]] =
+    if(playerTurn == RED)
+    {
+        cout << "PlayerA : 선 플레이어";
+    }
+    else
+    {
+        cout << "PlayerB : 선 플레이어";
+    }
+    Sleep(800);
 
-  // 밑에 구문 없어도 되나? ㄴㄴ 해야됌, 생성, 소멸 시 보드와, 플레이어에 모두 적용해야됌
-  // board[0][3] =
-  // board[11][3] = 
+    //초기화
+    board.resize(BOARD_HEIGHT, vector<Object*>(BOARD_WIDTH, nullptr));
+    playerA.resize(MAX_OBJECT_CNT, nullptr);
+    playerB.resize(MAX_OBJECT_CNT, nullptr);
+
+    console = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // 초기 지휘소 생성
+    // owner, position, damage, defense, healthPoints, moveDistance
+    playerA[0] = new Command_Object_Type("PlayerA", {3,0}, 0, 10, 100, 1);
+    playerB[0] = new Command_Object_Type("PlayerB", {3,11}, 0, 10, 100, 1);
+
+    // 보드 위에 지휘소 객체 생성
+    board[0][3] = playerA[0];
+    board[11][3] = playerB[0];
 }
 
+// 동전 던지기
+int Game::CoinToss()
+{
+    srand(time(0));
+    int result = rand % 2;
+
+    return result;
+}
+
+// 규칙 설명
 void Game::PrintRule()
 {
-  cout << endl;
-  cout << "**** 게임 조작 방법 ****" << endl;
-  cout << "화살표 키 : 커서 이동 " << endl;
-  cout << "A키 : "
-  // ...
-  _getch();
+    cout << endl;
+    cout << "**** 게임 조작 방법 ****" << endl;
+    cout << "화살표 키 : 커서 이동 " << endl;
+    cout << "A키 : 공격 모드 전환" << endl;
+    cout << "V키 : 이동 모드 전환" << endl;
+    cout << "S키 : 유닛 소환 모드 전환" << endl;
+    cout << "T키 : 턴 전환" << endl;
+    cout << "스페이스바 : 선택/행동 수행" << endl;
+    cout << "게임을 시작하려면 아무 키나 누르세요..." << endl;
+    _getch(); // 사용자가 아무 키나 누를 때까지 대기
 }
 
-void Draw_Board()
+// 보드 출력
+void Game::Draw_Board()
 {
-  system("cls");
-  for(int i = 0; i < BOARD_HEIGHT; i++)
+    system("cls");
+
+    // 공격/이동/생성 가능 범위를 저장
+    vector<Position> range_positions;
+
+    if(isSelected)
     {
-      for (int j = 0; j < BOARD_WIDTH; j++)
+        for(int k=0; k<MAX_OBJECT_CNT; k++)
         {
-        /*
-        setconsoleText(원상복구)
-        for(int k=0; k<MAX_OBJECT_CNT, k++)
-        {
-            // 수정사항, 이동, 공격, 생성 범위 사항을 여기에 추가함, 이 로직은 생각해보기
-            // 여기부터 이동, 공격, 생성 범위 출력에 대한 내용
-            //playerA 객체에 대한 범위 업데이트
-            if(selectedX == player[A].positionY && selectedY == player[k].positionX)
+            Object *currentObject = (playerTurn == RED) ? playerA[k] : playerB[k];
+            if(currnetObject)
             {
-                switch(mode)
+                Position position = currentObject->getPosition();
+                if(position.x == Selected_X && position.y == Selected_Y)
                 {
-                    case attackMode:
-                        attack_position = cout << playerA[k].range() // 범위를 여기서 받아서 업데이트 하고, for문 밖에서 출력 --> 수정
-                    case moveMode:
-                    case spawnMode:
+                    if(attackMode)
+                    {
+                        Attack_Object_Type *attacker = dynamic_cast<Attac_Object_Type*>(currentObject);
+                        range_positions = attack->getAttackablePositions(board);
+                        //  break 넣을지 말지 생각해서 결정 checkcheckcheckcheckcheckcheckcheck
+                    }
+                    
+                    // move 동작 얼추 검증완료
+                    else if(moveMode)
+                    {
+                        range_positions = currentObject->getMovablePositions(board);
+                    }
+
+                    else if(spawnMode)
+                    {
+                        Command_Object_Type *commander = dynamic_cast<Command_Object_Type*>(currnetObject);
+                        // range_positions = commander->getSpawnablePositions();
+                    }
+                }
+            }
+        }
+    }
+
+    for(int i=0; i<BOARD_HEIGHT; i++)
+    {
+        for(int j=0; j<BOARD_WIDTH; j++)
+        {
+            bool isRangePosition = false;
+            bool hasUnit = false;
+            int unitColor = -1;
+            string unitDisplay;
+
+            // 현재 위치가 공격/이동/생성 범위에 해당하는지 판단
+            for(auto it : range_positions)
+            {
+                if(i == it.y && j == it.x)
+                {
+                    isRangePosition = true;
+                    break;
+                }
+            }
+        
+            // 현재 위치의 유닛 확인
+            for(int k=0; k<MAX_OBJECT_CNT; k++)
+            {
+                if(playerA[k])
+                {
+                    Position positionA = playerA[k]->getPosition();
+                    if(i == positionA.y && j == positionA.x)
+                    {
+                        hasUnit = true;
+                        unitColor = RED;
+                        unitDisplay = playerA[k]->getUnitType();
+                        break;
+                    }
+                }
+
+                if(playerB[k])
+                {
+                    Position positionB = playerB[k]->getPosition();
+                    if(i == positionB.y && j == positionB.x)
+                    {
+                        hasUnit = true;
+                        unitColor = RED;
+                        unitDisplay = playerB[k]->getUnitType();
+                        break;
+                    }
                 }
             }
 
-            // playerB 객체에 대한 범위 업데이트
-            // .. 위와 동일
-        
-            if(player[A]!=nullptr || playerB[k] != nullptr)
+            // 소환 대기 유닛 출력
+            if(hasUnit)
             {
-                // playerA의 생성된 객체 출력
-                if(i == playerA[k].positionY && j == playerA[k].positionX)
+                Command_Object_Type *commandA = dynamic_cast<Command_Object_Type*>(playerA[0]);
+                Command_Object_Type *commandB = dynamic_cast<Command_Object_Type*>(playerB[0]);
+
+                // playerA의 소환 대기 유닛 확인
+                if(!commandA->spawnRequests.empty() &&
+                commandA->spawnRequests[0].spawnPos.y == i &&
+                commandA->spawnRequests[0].spawnPos.x == j &&)
                 {
-                    setconsoleText(RED)
-                    // playerA[k]의 객체 state에 따라서
-                    // setconsoleText(배경색 설정)
-                    cout << playerA[k].UnitType.str(0,1) // 이런식으로
-                    setconsoleText(원상복구)
+                    SetConsoleTextAttribute(console, FOREGROUND_RED);
+                    cout << commandA->spawnRequests[0].remainingTurns;
+                    continue;
                 }
 
-                // playerB의 생성된 객체 출력
-                // 똑같이
-                if(i == player .. )
-                
-            }    
-        } // end for문
 
-        // 생성 대기 중 객체 출력
-        if(playerA[0]->spawnlist != nullptr || playerB[0]->spawnlist !=nullptr )
-        {
-            if(i == player[0]->spawnlist.positionY && j == playerA[0]->spawnlist.positionX)
-            {
-                cout << playerA[0]->spawnlist.remainingTurn
+                // playerB의 소환 대기 유닛 확인
+                if(!commandB->spawnRequests.empty() &&
+                commandB->spawnRequests[0].spawnPos.y == i &&
+                commandB->spawnRequests[0].spawnPos.x == j &&)
+                {
+                    SetConsoleTextAttribute(console, FOREGROUND_BLUE);
+                    cout << commandB->spawnRequests[0].remainingTurns;
+                    continue;
+                }
             }
-        }
         
-        // **** 여기서 출력
-        // 공격 가능범위, 이동가능범위, 생성가능범위를 표시할대 색상 설정만해줌
-        for(auto it : attack_position)
-        {
-            if(i == it.y && j == it.x && attackMode)
+
+            // START
+            // 상태에 따른 색상 설정
+            // 1. 현재 커서 배경 흰색
+            if(i == CursorY && j == CursorX)
             {
-                setconsoleText()
+                SetConsoleTextAttribute(console, BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
             }
-        }
 
-        3. 커서 위치 색넣기
-        if(i == CursorY && j )
-        {
-            setconsoleText()
-        }
+            // 2. 공격/이동/생성 범위 색 설정
+            else if(isRangePosition)
+            {
+                // 해당 범위 내 유닛이 있을 때
+                if(hasUnit)
+                {
+                    if(attackMode) // 공격범위 : 노란색
+                    {
+                        SetConsoleTextAttribute(console, BACKGROUND_RED | BACKGROUND_GREEN |    // 노란색 배경
+                        (unitColor == RED ? FOREGROUND_RED : FOREGROUND_BLUE)); // 유닛 색상 유지
+                    }
+                    
+                    else if(moveMode) // 이동범위 : 초록색
+                    {
+                        SetConsoleTextAttribute(console, BACKGROUND_GREEN |  // 초록색 배경
+                        (unitColor == RED ? FOREGROUND_RED : FOREGROUND_BLUE)); // 유닛 색상 유지
 
-        2. nullptr이면 "."출력
-        if(board[CursorY][CursorX] == nullptr)
-        {
-            cout << ".";
-        }
+                    }
 
-        */
+                    else if(spawnMode) // 생성범위 : 보라색
+                    {
+                        SetConsoleTextAttribute(console, BACKGROUND_RED | BACKGROUND_BLUE | // 보라색 배경
+                        (unitColor == RED ? FOREGROUND_RED : FOREGROUND_BLUE));  // 유닛 색상 유지
+                    }
+                }
+
+                // 해당 범위 내 유닛이 없을 때
+                else
+                {
+                    if(attackMode) // 공격범위 : 노란색
+                    {
+                        SetConsoleTextAttribute(console, BACKGROUND_RED | BACKGROUND_GREEN) // 노란색 배경
+                    }
+                    
+                    else if(moveMode) // 이동범위 : 초록색
+                    {
+                        SetConsoleTextAttribute(console, BACKGROUND_GREEN)  // 초록색 배경
+                    }
+
+                    else if(spawnMode) // 생성범위 : 보라색
+                    {
+                        SetConsoleTextAttribute(console, BACKGROUND_RED | BACKGROUND_BLUE) // 보라색 배경
+                    }
+                }
+            }
+
+            else if(hasUnit)
+            {
+                if(unitColor == RED)
+                {
+                    SetConsoleTextAttribute(console, FOREGROUND_RED); // RED 색상
+                }
+
+                else
+                {
+                    SetConsoleTextAttribute(console, FOREGROUND_BLUE); // BLUE 색상
+                }
+            }
+
+            else
+            {
+                SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+            }
+            // END
+            
+
+            // 적절한 문자 출력
+            if(hasUnit)
+            {
+                cout << unitDisplay;
+            }
+
+            else
+            {
+                cout << ".";
+            }
+
+            SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+            cout << endl;
+        }
     }
 }
 
-// void Game::Check_KeyInput() 일단 그대로
 
+// 해당 커서 위 객체가 내 객체인지 파악
+bool Game::Check_MyObject()
+{
+    if(board[CursorY][CursorX]->getName() == "PlayerA" && playerTurn == RED)
+    {
+        return true;
+    }
 
+    else if(board[CursorY][CursorX]->getName() == "PlayerB" && playerTurn == BLUE)
+    {
+        return true;
+    }
 
+    else
+    {
+        return false;
+    }
+}
+
+// 객체의 상태를 파악
+bool Game::Check_ObjectState()
+{
+    if(board[CursorY][CursorX]->getObjectState() == beforeAction)
+    {
+        return true;
+    }
+
+    else
+    {
+        return false;
+    }
+}
+
+// 키 입력 후 상태변경
+void Game::Check_KeyInput()
+{
+    // ctrl+c 처리 구문 추가해야됌(항복)
     
+    int key;
+    int cnt = 0;
+    
+    vector<Object*> currentVector = (playerTurn == RED) ? playerA : playerB;
+    for(auto it : currentVector)
+    {
+        if(it! = nullptr _&& it->getObjectState() == beforeAction)
+        {
+            cnt++;
+        }
+    }
+    
+    if(cnt == 0)
+    {
+        key = 84; // t, T
+        cout << "더 이상 할 수 있는 액션이 없습니다. 턴을 넘깁니다" << endl;
+    }
+
+    else
+    {
+        key = _getch();
+    }
+
+    switch(key){
+    
+    case 72:  //상
+        if(CursorY > 0) CursorY--;
+        break;
+
+    case 80:  //하
+        if(CursorY < BOARD_HEIGHT -1) CursorY++;
+        break;
+
+    case 75:  //좌
+    if(CursorX > 0) CursorX--;
+    break;
+    
+    case 72:  //우
+    if(CursorX < BOARD_WIDTH -1) CursorX++;
+    break;
+
+    case 'a': // 97
+    case 'A': // 65
+        if(board[CursorY][CursorX] != nullptr)
+        {
+            // 나의 객체인지 아닌지 파악
+            if(Check_MyObject())
+            {
+                // 공격 객체인지 아닌지 파악
+                if(dynamic_cast<Attack_Object_Type*>(board[CursorY][CursorX]))
+                {
+                    // 객체의 액션 전/후 상태 확인
+                    if(Check_ObjectState())
+                    {
+                        SelectedX = CursorX;
+                        SelectedY = CursorY;
+                        isSelected = true;
+                        attackMode = !attackMode;
+                        moveMode = spawnMode = false;
+                    }
+
+                    else
+                    {
+                        cout << "이미 액션을 수행한 객체입니다" << endl;
+                    }
+                }
+
+                else
+                {
+                    cout << "공격 객체가 아닙니다" << endl;
+                }
+            }
+
+            else
+            {
+                cout << "나의 객체가 아닙니다" << endl;
+            }
+        }
+        break;
+
+    case 'v': // 118
+    case 'V': // 86
+        if(board[CursorY][CursorX] != nullptr)
+        {
+            // 나의 객체인지 아닌지 파악
+            if(Check_MyObject())
+            {
+                // 객체의 액션 전/후 상태 확인
+                if(Check_ObjectState())
+                {
+                    SelectedX = CursorX;
+                    SelectedY = CursorY;
+                    isSelected = true;
+                    moveMode = !moveMode;
+                    attackMode = spawnMove = false;
+                }
+
+                else
+                {
+                    cout << "이미 액션을 수행한 객체입니다" << endl;
+                }
+            }
+
+            else
+            {
+                cout << "나의 객체가 아닙니다" << endl;
+            }
+        }
+        break;
+    
+    case 's': // 115
+    case 'S': // 83
+        if(board[CursorY][CursorX] != nullptr)
+        {
+            // 나의 객체인지 아닌지 파악
+            if(Check_MyObject())
+            {
+                // 지휘소 객체인지 아닌지 파악
+                if(dynamic_cast<Command_Object_Type*>(board[CursorY][CursorX]))
+                {
+                    // 객체의 액션 전/후 상태 확인
+                    if(Check_ObjectState())
+                    {
+                        SelectedX = CursorX;
+                        SelectedY = CursorY;
+                        isSelected = true;
+                        spawnMode = !spawnMode;
+                        moveMode = attackMode = false;
+                    }
+
+                    else
+                    {
+                        cout << "이미 액션을 수행한 객체입니다" << endl;
+                    }
+                }
+
+                else
+                {
+                    cout << "지휘소 객체가 아닙니다" << endl;
+                }
+            }
+
+            else
+            {
+                cout << "나의 객체가 아닙니다" << endl;
+            }
+        }
+        break;
+    
+    case 't': // 116
+    case 'T': // 84
+        if(playerTurn == RED)
+        {
+            playerTurn == BLUE
+            playerCount++;
+        }
+
+        else
+        {
+            playerTurn == RED;
+            playerCount++;
+        }
+
+        if(playerCount == 2)
+        {
+            playerCount = 0;
+            turnCount++;
+
+            // playerA, playerB 객체  state 업데이트 해야됌 (beforeAction으로)
+            // dynamic_cast<Command_Object_Type*>(board[CursorY][CursorX]->updatePlayerState(board, playerA, playerB));
+
+            // 턴 감소
+            // dynamic_cast<Command_Object_Type*>(board[CursorY][CursorX]->updateSpawnRequests(board, playerA, playerB));
+            // 
+        }    
+        break;        
+    }
+}
+
+
+void Game::handleSpaceKey()
+{
+    if(isSelected)
+    {
+        if(board[CursorY][CursorX] != nullptr)
+        {
+            Selected_X = CursorX;
+            Selected_Y = CursorY;
+            isSelected = true;
+        }
+    }
+
+    else
+    {
+        if(attackMode)
+        {
+            Attack_Object_Type* attacker = dynamic_cast<Attack_Object_Type*>(board[Selected_Y][Selected_X]);
+            if(attacker && board[CursorY][CursorX] != nullptr)
+            {
+                // 여기 알고리즘 can_attack 등으로 수정
+                int dist = abs(CursorY - Selected_Y) + abs(CursorX - Selected_X);
+                if(dist <= attacker->getAttackRange())
+                {
+                    attacker->attack(*board[CursorY][CursorX]);
+                }
+            }
+        }
+
+        // 이동 동작 검증 얼추 완료
+        else if(moveMode)
+        {
+            Object *selected_obj = board[Selected_Y][Selected_X];
+            if(selected_obj != nullptr)
+            {
+                selected_obj->move(CusorX, CursorY, board);
+            }
+        }
+
+        // 수정 필요
+        else if(spawnMode)
+        {
+            Command_Object_Type* command = dynamic_cast<Command_Object_Type*>(board[Selected_Y][Selected_X]);
+            if(command && board[CursorY][CursorX] != nullptr)
+            {
+                if(command->canSpawn({CursorX, CursorY}, board) && has_empty_slot(playerA))
+                {
+                    int choice;
+                    cout << "생성할 유닛을 선택하세요" << endl;
+                    cout << "1. Soldier (1 Turn)" << endl << "2. Redback (2 Turn)" << endl << "3. Tank (2 Turn)" << endl << "4. K9 (3 Turn)" << endl;
+                    cout << "입력 : ";
+                    cin >> choice;
+
+                    switch(choice){
+                    case 1:
+                        command->requestSpawn("Soldier", { CursorX, CursorY}, board, "PlayerA");
+                        break;
+                    
+                    case 2:
+                        command->requestSpawn("Redback", { CursorX, CursorY}, board, "PlayerA");
+                        break;
+                
+                    case 3:
+                        command->requestSpawn("Tank", { CursorX, CursorY}, board, "PlayerA");
+                        break;    
+
+                    case 4:
+                        command->requestSpawn("K9", { CursorX, CursorY}, board, "PlayerA");
+                        break;
+                    
+                    default:
+                        cout << "잘못된 선택입니다" << endl;
+                        break;
+
+                    }
+                }
+            }
+        }
+
+        isSelected = false;
+        attackMode = moveMode = spawnMode = false;
+    }
+}
+
+
+bool Game::has_empty_slot(vector<Object*> &player)
+{
+    for(auto &obj : player)
+    {
+        if (obj == nullptr)
+        {
+            cout << "dd";
+            return true;
+        }
+    }
+    cout << "full";
+    return false;
+}
+
 void Game::Run()
 {
-  PrintRule();
+    while(true)
+    {
+        Draw_Board();
+        Check_KeyInput();
+    }
 }
