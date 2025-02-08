@@ -45,10 +45,17 @@ void Object::setPosition(Position pos)
 {
 	position = pos;
 }
+ObjectState Object::getObjectState() const {
+	return state;
+}
+
+
+
 
 void Object::move(int _cursorX, int _cursorY, vector<vector<Object*>>& _board)
 {
-	vector<Position> movable_positions = getMovablePosition(_board);
+	cout << "ji";
+	vector<Position> movable_positions = getMovablePositions(_board);
 
 	bool is_movable = false;
 
@@ -68,17 +75,16 @@ void Object::move(int _cursorX, int _cursorY, vector<vector<Object*>>& _board)
 	}
 	else
 	{
-		Position new_position = { _cursorX, _cursorY };
-		_board[position.y][position.x] = nullptr;
-		setPosition(new_position);
-
 		if (_board[_cursorY][_cursorX] != nullptr)
 		{
 			cout << "이미 다른 객체가 있습니다.\n";
 			return;
 		}
 
-		_board[position.y][position.x] = this;
+		Position new_position = { _cursorX, _cursorY };
+		_board[position.y][position.x] = nullptr;
+		setPosition(new_position);
+		_board[_cursorY][_cursorX] = this;
 		state = afterMove;
 	}
 }
@@ -100,23 +106,19 @@ vector<Position> Object::getMovablePositions(vector<vector<Object*>>& _board) co
 	vector<Position> movable_positions;
 	int rows = _board.size();
 	int cols = _board[0].size();
-	for (int i = position.y - moveDistance; i <= position.y+ moveDistance; i++)
+	for (int i = position.y - moveDistance; i <= position.y + moveDistance; i++)
 	{
-		for (int j = position.x - moveDistance; j <= position.x+moveDistance; j++)
+		for (int j = position.x - moveDistance; j <= position.x + moveDistance; j++)
 		{
-		
-			float distance = sqrt(pow(abs(i-position.y),2) + pow(abs(j - position.x), 2));
-			if (distance <= moveDistance && j >= 0 && j < cols && i >= 0 && i <= rows)
+			float distance = sqrt(pow(abs(i - position.y), 2) + pow(abs(j - position.x), 2));
+			if (distance <= moveDistance && j >= 0 && j < cols && i >= 0 && i < rows)
 			{
-
-					movable_positions.push_back({ j, i });
-			}	
-			
+				movable_positions.push_back({ j, i });
+			}
 		}
 	}
 	return movable_positions;
 }
-
 void Object::printPosition(const vector<Position>& positions)
 {
 	for (const auto& pos : positions)

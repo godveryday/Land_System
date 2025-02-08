@@ -11,7 +11,7 @@ public:
 	bool canAttack(const Object& _target) const;
 	vector<Position> getAttackablePositions(const vector<vector<Object*>>& _board) const;
 	int getAttackRange() const;
-	void printPosition(const vector<Position>& positions);
+	//void printPosition(const vector<Position>& positions);
 
 private:
 	int attackRange;

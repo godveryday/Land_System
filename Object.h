@@ -32,7 +32,7 @@ public:
 	virtual ~Object() = default;
 
 	virtual void move(int _cursorX, int _cursorY, vector<vector<Object*>>& _board);
-	vector<Position>getMovablePosition(vector<vector<Object*>>& _board) const;
+	vector<Position>getMovablePositions(vector<vector<Object*>>& _board) const;
 
 	int getMoveDistance() const;
 	int getDefense() const;
@@ -40,6 +40,8 @@ public:
 	Position getPosition() const;
 	string getName() const;
 	string getUnitType() const;
+	ObjectState getObjectState() const;
+
 
 	void setHealthPoints(float hp);
 	void setPosition(Position pos);
