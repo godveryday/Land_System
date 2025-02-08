@@ -1,6 +1,4 @@
-#ifndef GAME_H
-#define GAME_H
-
+#pragma once
 #include<vector>
 #include<string>
 #include<windows.h>
@@ -17,7 +15,7 @@
 #define RED 0
 #define BLUE 1
 
-class Game{
+class Game {
 private:
     int CursorX, CursorY;
     int Selected_X, Selected_Y;
@@ -36,9 +34,13 @@ public:
     int CoinToss();
     void PrintRule();
     void Draw_Board();
+    // 추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌
+    void updatePlayerState();
     bool Check_MyObject();
     bool Check_ObjectState();
     void Check_KeyInput();
     void handleSpaceKey();
     void Run();
-}
+
+    bool has_empty_slot(vector<Object*>& player);
+};
