@@ -271,9 +271,9 @@ void Game::Draw_Board()
             SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
         }
-        cout << endl << endl;
+        cout << endl;
     }
-
+    cout << endl;
     cout << "이동/공격/생성 모드 : " << moveMode << attackMode << spawnMode << endl;
     cout << "턴 : " << turnCount << endl;
     cout << "플레이어 : " << playerTurn << endl;
