@@ -34,7 +34,7 @@ string Object::getName() const
 
 string Object::getUnitType() const
 {
-	return unitType.substr(0,1);
+	return unitType;
 }
 
 ObjectState Object::getObjectState() const {
@@ -58,7 +58,6 @@ void Object::setHealthPoints(float hp)
 	healthPoints = hp;
 }
 
-// 추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌추가됌
 void Object::setState(ObjectState _state)
 {
 	state = _state;
@@ -67,7 +66,6 @@ void Object::setState(ObjectState _state)
 
 void Object::move(int _cursorX, int _cursorY, vector<vector<Object*>>& _board)
 {
-	cout << "ji";
 	vector<Position> movable_positions = getMovablePositions(_board);
 
 	bool is_movable = false;

@@ -30,19 +30,19 @@ void Command_Object_Type::updateSpawnRequests(vector<vector<Object*>>& _board, v
 			Object* new_unit = nullptr;
 			if (it->unitType == "Soldier")
 			{
-				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 10, 5, 100.0, 1, 1, "Soldier");
+				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 10, 5, 100.0, 1, 1, "Soldier");  // owner, pos, damage, defense, hp, move_dist, attack_range
 			}
 			else if (it->unitType == "RedBack")
 			{
-				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 8, 4, 80.0, 2, 1, "RedBack");
+				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 8, 4, 80.0, 2, 2, "RedBack");
 			}
 			else if (it->unitType == "Tank")
 			{
-				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 15, 10, 150.0, 2, 3, "Tank");
+				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 15, 10, 150.0, 2, 2, "Tank");
 			}
 			else if (it->unitType == "K9")
 			{
-				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 12, 6, 90.0, 4, 1, "K9");
+				new_unit = new Attack_Object_Type(it->newOwner, it->spawnPos, 12, 6, 90.0, 3, 3, "K9");
 			}
 
 			for (auto& obj : _player)

@@ -576,20 +576,13 @@ void Game::handleSpaceKey()
             Attack_Object_Type* attacker = dynamic_cast<Attack_Object_Type*>(board[Selected_Y][Selected_X]);
             if (attacker && board[CursorY][CursorX] != nullptr)
             {
-                // 여기 알고리즘 can_attack 등으로 수정
-                int dist = abs(CursorY - Selected_Y) + abs(CursorX - Selected_X);
-                if (dist <= attacker->getAttackRange())
-                {
-                    attacker->attack(*board[CursorY][CursorX]);
-
-                }
+                attacker->attack(*board[CursorY][CursorX]);
             }
         }
         
         // 이동 동작 검증 얼추 완료
         else if (moveMode)
         {
-            cout << "Space Key3" << endl;
             Object* selected_obj = board[Selected_Y][Selected_X];
             if (selected_obj != nullptr)
             {
@@ -607,8 +600,8 @@ void Game::handleSpaceKey()
             string playerName = command->getName();
             vector<Object*> player = (playerName == "PlayerA") ? playerA : playerB;
             
-            // 여기부터 아래 함수들 모두 can_spawn()함수에 집어넣어야됌 //
 
+            // 여기부터 아래 함수들 모두 can_spawn()함수에 집어넣어야됌 //
             for (auto it : spawnable_positions)
             {
                 if (CursorX == it.x && CursorY == it.y)
@@ -624,8 +617,6 @@ void Game::handleSpaceKey()
                 // 해당 위치에 객체가 있는지는 판단
                 if (command && board[CursorY][CursorX] == nullptr)
                 {
-           
-
                     // player 객체가 10개 이하인지 판단
                     if (has_empty_slot(player))
                     {
@@ -681,7 +672,7 @@ void Game::handleSpaceKey()
                 cout << "생성 가능한 위치가 아닙니다" << endl;
             }
 
-        } // else if(spawnMode)
+        } // END else if(spawnMode)
 
 
         isSelected = false;

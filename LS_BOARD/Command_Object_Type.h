@@ -27,7 +27,7 @@ private:
 	{
 		{"Soldier",1},
 		{"RedBack",2},
-		{"Tank",5},
+		{"Tank",2},
 		{"K9",3}
 	};
 
