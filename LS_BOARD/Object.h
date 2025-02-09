@@ -50,4 +50,6 @@ public:
 
 	string ObjectInfo() const;
 	void printPosition(const vector<Position>& positions);
+
+	bool Dead(vector<vector<Object*>>& _board, vector<Object*>& _playerA, vector<Object*>& _playerB);
 };

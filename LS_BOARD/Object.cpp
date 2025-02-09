@@ -138,3 +138,38 @@ void Object::printPosition(const vector<Position>& positions)
 		cout << pos.x << " " << pos.y << endl;
 	}
 }
+
+bool Object::Dead(vector<vector<Object*>>& _board, vector<Object*>& _playerA, vector<Object*>& _playerB)
+{
+	if (healthPoints <= 0)
+	{
+		// 보드에서 제거
+		_board[position.y][position.x] = nullptr;
+
+		// playerA 또는 playerB의 벡터에서 제거
+		if (owner == "PlayerA")
+		{
+			for (int i = 0; i < _playerA.size(); i++)
+			{
+				if (_playerA[i] == this)
+				{
+					_playerA[i] = nullptr;
+					break;
+				}
+			}
+		}
+		else if (owner == "PlayerB")
+		{
+			for (int i = 0; i < _playerB.size(); i++)
+			{
+				if (_playerB[i] == this)
+				{
+					_playerB[i] = nullptr;
+					break;
+				}
+			}
+		}
+		return true;
+	}
+	return false;
+}

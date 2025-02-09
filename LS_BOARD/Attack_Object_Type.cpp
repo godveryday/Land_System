@@ -15,7 +15,7 @@ int Attack_Object_Type::getAttackRange() const
 	return attackRange;
 }
 
-void Attack_Object_Type::attack(Object& _target)
+void Attack_Object_Type::attack(Object& _target, vector<vector<Object*>>& _board, vector<Object*>& _playerA, vector<Object*>& _playerB)
 {
 	if (canAttack(_target))
 	{
@@ -40,7 +40,7 @@ void Attack_Object_Type::attack(Object& _target)
 
 
 		// 데미지 계산 시 배율 적용
-		int actual_damage = static_cast<int>((damage * multiplier) - _target.getDefense());
+		float actual_damage = static_cast<int>((damage * multiplier) - _target.getDefense());
 		if (actual_damage < 0) actual_damage = 0;  // 데미지가 음수가 되지 않도록 설정
 
 		float new_health = _target.getHealthPoints() - actual_damage;
@@ -48,13 +48,22 @@ void Attack_Object_Type::attack(Object& _target)
 		
 		if (new_health <= 0)
 		{
-			// 여기 죽는 로직 추가하기 , 여기 죽는 로직 추가하기, 여기 죽는 로직 추가하기, 여기 죽는 로직 추가하기, 여기 죽는 로직 추가하기, 여기 죽는 로직 추가하기
+			if (_target.Dead(_board, _playerA, _playerB))
+			{
+				delete& _target;
+				cout << "타겟이 죽었습니다" << endl;
+				Sleep(1000);
+			}
 		}
-
-		cout << "target_HP: " << _target.getHealthPoints() << endl;
-		Sleep(1000);
+		
+		else
+		{
+			cout << "target_HP: " << _target.getHealthPoints() << endl;
+			Sleep(1000);
+		}
 		state = afterAttack;
 	}
+
 	else
 	{
 		cout << "Cannot attack" << endl;

@@ -40,7 +40,6 @@ public:
     bool Check_ObjectState();
     void Check_KeyInput();
     void handleSpaceKey();
-    void Run();
-
     bool has_empty_slot(vector<Object*>& player);
+    void Run();
 };

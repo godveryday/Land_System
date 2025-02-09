@@ -199,7 +199,7 @@ void Game::Draw_Board()
                     commandA->spawnRequests[0].spawnPos.x == j)
                 {
                     SetConsoleTextAttribute(console, FOREGROUND_RED);
-                    cout << commandA->spawnRequests[0].remainingTurns;
+                    cout << commandA->spawnRequests[0].remainingTurns << " ";
                     continue;
                 }
 
@@ -210,7 +210,7 @@ void Game::Draw_Board()
                     commandB->spawnRequests[0].spawnPos.x == j)
                 {
                     SetConsoleTextAttribute(console, FOREGROUND_BLUE);
-                    cout << commandB->spawnRequests[0].remainingTurns;
+                    cout << commandB->spawnRequests[0].remainingTurns << " ";
                     continue;
                 }
             }
@@ -292,11 +292,11 @@ void Game::Draw_Board()
             // 적절한 문자 출력
             if (hasUnit)
             {
-                cout << unitDisplay;
+                cout << unitDisplay << " ";
             }
             else
             {
-                cout << ".";
+                cout << ". ";
             }
 
             SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -576,7 +576,7 @@ void Game::handleSpaceKey()
             Attack_Object_Type* attacker = dynamic_cast<Attack_Object_Type*>(board[Selected_Y][Selected_X]);
             if (attacker && board[CursorY][CursorX] != nullptr)
             {
-                attacker->attack(*board[CursorY][CursorX]);
+                attacker->attack(*board[CursorY][CursorX], board, playerA, playerB);
             }
         }
         
@@ -601,7 +601,7 @@ void Game::handleSpaceKey()
             vector<Object*> player = (playerName == "PlayerA") ? playerA : playerB;
             
 
-            // 여기부터 아래 함수들 모두 can_spawn()함수에 집어넣어야됌 //
+            // 여기부터 아래 함수들 모두 can_spawn 함수에 집어넣어야됌 (코드 깔끔하게 하기 위함) //
             for (auto it : spawnable_positions)
             {
                 if (CursorX == it.x && CursorY == it.y)
@@ -624,6 +624,7 @@ void Game::handleSpaceKey()
                         if (command->spawnRequests.empty())
                         {
                             int choice;
+                            cout << endl;
                             cout << "생성할 유닛을 선택하세요" << endl;
                             cout << "1. Soldier (1 Turn)" << endl << "2. Redback (2 Turn)" << endl << "3. Tank (2 Turn)" << endl << "4. K9 (3 Turn)" << endl;
                             cout << "입력 : ";
