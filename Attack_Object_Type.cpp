@@ -1,6 +1,8 @@
-#include "Attack_Object_Type.h"
+﻿#include "Attack_Object_Type.h"
 #include <iostream>
 #include <cmath>
+#include <unordered_map>
+#include<windows.h>
 
 using namespace std;
 
@@ -11,17 +13,109 @@ Attack_Object_Type::Attack_Object_Type(string owner, Position pos, int dmg, int 
 int Attack_Object_Type::getAttackRange() const
 {
 	return attackRange;
-}	
-void Attack_Object_Type::attack(Object& _target)
+}
+
+void Attack_Object_Type::attack(Object& _target, vector<vector<Object*>>& _board, vector<Object*>& _playerA, vector<Object*>& _playerB)
 {
 	if (canAttack(_target))
 	{
-		int actual_damage = damage - _target.getDefense();
+
+		// 유닛 타입에 따른 데미지 배율 정의
+		unordered_map<string, unordered_map<string, float>> damageMultipliers = {
+			{"Soldier", {{"Command", 1.5}}},
+			{"Tank", {{"K9", 1.5}}},
+			{"K9", {{"RedBack", 1.5}}},
+			{"RedBack", {{"K9", 1.5}}},
+		};
+
+		// 기본 데미지 배율은 1.0
+		float multiplier = 1.0;
+
+		// 유닛 타입에 따른 데미지 배율 적용
+		if (damageMultipliers.find(unitType) != damageMultipliers.end() &&
+			damageMultipliers[unitType].find(_target.getUnitType()) != damageMultipliers[unitType].end())
+		{
+			multiplier = damageMultipliers[unitType][_target.getUnitType()];
+		}
+
+
+		// 데미지 계산 시 배율 적용
+		float actual_damage = static_cast<int>((damage * multiplier) - _target.getDefense());
+		if (actual_damage < 0) actual_damage = 0;  // 데미지가 음수가 되지 않도록 설정
+
 		float new_health = _target.getHealthPoints() - actual_damage;
 		_target.setHealthPoints(new_health);
-		cout << "target_HP: " << _target.getHealthPoints() << endl;
+		
+		if (new_health <= 0)
+		{
+			if (_target.Dead(_board, _playerA, _playerB))
+			{
+				delete& _target;
+				cout << "타겟이 죽었습니다" << endl;
+				Sleep(1000);
+			}
+		}
+		
+		else
+		{
+			cout << "target_HP: " << _target.getHealthPoints() << endl;
+			Sleep(1000);
+		}
+		// 자주포의 공격 특성: 상하좌우 한 칸씩 절반의 데미지 적용
+		if (unitType == "K9")
+		{
+			vector<Position> adjacent_positions = {
+				{_target.getPosition().x, _target.getPosition().y - 1}, // 위
+				{_target.getPosition().x, _target.getPosition().y + 1}, // 아래
+				{_target.getPosition().x - 1, _target.getPosition().y}, // 왼쪽
+				{_target.getPosition().x + 1, _target.getPosition().y}  // 오른쪽
+			};
+
+			for (const auto& pos : adjacent_positions)
+			{
+				if (pos.x >= 0 && pos.x < _board[0].size() && pos.y >= 0 && pos.y < _board.size())
+				{
+					Object* adjacent_target = _board[pos.y][pos.x];
+					if (adjacent_target != nullptr && adjacent_target->getName() != owner)
+					{
+						float half_damage = actual_damage / 2;
+						float new_adjacent_health = adjacent_target->getHealthPoints() - half_damage;
+						adjacent_target->setHealthPoints(new_adjacent_health);
+
+						if (new_adjacent_health <= 0)
+						{
+							if (adjacent_target->Dead(_board, _playerA, _playerB))
+							{
+								delete adjacent_target;
+								cout << "인접 타겟이 죽었습니다" << endl;
+								Sleep(1000);
+							}
+						}
+						else
+						{
+							cout << "adjacent_target_HP: " << adjacent_target->getHealthPoints() << endl;
+							Sleep(1000);
+						}
+					}
+				}
+			}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
 		state = afterAttack;
 	}
+
 	else
 	{
 		cout << "Cannot attack" << endl;
@@ -34,7 +128,7 @@ bool Attack_Object_Type::canAttack(const Object& _target) const
 
 	if (owner == _target.getName())
 	{
-		cout << "���� ������";
+		cout << "같은 소유자";
 		return false;
 	}
 	else
@@ -43,10 +137,17 @@ bool Attack_Object_Type::canAttack(const Object& _target) const
 		cout << "attacker_position: " << position.x << " " << position.y << endl;
 	}
 
+	// Soldier만 Command 객체를 타격할 수 있도록 조건 추가
+	if (_target.getUnitType() == "Command" && unitType != "Soldier")
+	{
+		cout << "오직 Soldier만 Command 객체를 타격할 수 있습니다." << endl;
+		return false;
+	}
+
 	int distance = sqrt(pow(target_pos.x - position.x, 2) + pow(target_pos.y - position.y, 2));
-	cout << "distance: " << distance << endl;
 	return distance <= attackRange;
 }
+
 
 vector<Position> Attack_Object_Type::getAttackablePositions(const vector<vector<Object*>>& _board) const
 {
@@ -60,18 +161,13 @@ vector<Position> Attack_Object_Type::getAttackablePositions(const vector<vector<
 		{
 			int new_x = position.x + dx;
 			int new_y = position.y + dy;
-			int distance = sqrt(dx * dx + dy * dy);
+			int distance = abs(dx) + abs(dy); // 맨해튼 거리 계산, 체크해야됌
 
 			if (new_x >= 0 && new_x < cols && new_y >= 0 && new_y < rows && distance <= attackRange)
 			{
-				if (_board[new_y][new_x] != nullptr && _board[new_y][new_x] != this)
-				{
-						attackable_positions.push_back({new_x, new_y});
-				}
+				attackable_positions.push_back({ new_x, new_y });
 			}
-			
 		}
 	}
-
 	return attackable_positions;
 }
